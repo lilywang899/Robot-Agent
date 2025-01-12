@@ -1,0 +1,12 @@
+mode = agent
+topic = test/topic0
+topic = test/topic1
+client_id = lwsMqttClient
+username = lwsUser
+password = mySecretPassword
+address = localhost
+host = localhost
+port = 1883
+in_port  = 1110
+out_port = 1150
+
