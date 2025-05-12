@@ -46,8 +46,8 @@ target_include_directories(
 
 target_link_libraries(
        agent
-       ssl
-       crypto
+       #ssl
+       #crypto
        websockets
        spdlog
 )
