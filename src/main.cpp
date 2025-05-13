@@ -21,6 +21,7 @@
 #include "wrapper.h"
 
 using namespace spdlog;
+//#include "spdlog"
 
 void loadConfig(const std::string& fileName, std::string& mode);
 int main(int argc, const char **argv)

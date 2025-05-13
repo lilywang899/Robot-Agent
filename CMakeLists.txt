@@ -15,6 +15,18 @@ set (LWS_WITH_CLIENT 1)
 set (LWS_ROLE_MQTT 1)
 set (LWS_WITH_NETWORK 1)
 
+set (LWS_WITH_SSL 0)
+set (LWS_ROLE_MBEDTLS 0)
+set (LWS_WITH_BORINGSSL 0)
+set (LWS_WITH_CYASSL 0)
+set (LWS_WITH_WOLFSSL 0)
+set (LWS_SSL_CLIENT_USE_OS_CA_CERTS 0)
+set (LWS_TLS_LOG_PLAINTEXT_RX 0)
+set (LWS_TLS_LOG_PLAINTEXT_TX 0)
+set (LWS_WITH_TLS_SESSIONS 0)
+set (LWS_WITH_TLS_JIT_TRUST 0)
+
+
 include(FetchContent)
 FetchContent_Declare(libwebsockets URL https://github.com/warmcat/libwebsockets/archive/refs/tags/v4.3.3.tar.gz)
 FetchContent_MakeAvailable(libwebsockets)
