@@ -197,15 +197,15 @@ void mqttClient::disconnect(){
 
 void mqttClient::publish( std::string& p_topic, const std::shared_ptr<MESSAGE>& p_message) {
         
-    MqttMessage_ msg = std::make_pair(p_topic,p_message);
+    MqttMessage_ msg = std::make_pair(p_topic,p_message); //msg.first is p_topic msg.second is p_message
     {
       std::lock_guard<std::mutex> lock(mqttMutex);
-      messages.emplace_back(msg);
+      messages.emplace_back(msg); //member variable of mqttClient class
     }
 
     std::string componentName = "app"; 
     struct lws* wsi = getWsiInstance(componentName);
-    lws_callback_on_writable(wsi);
+    lws_callback_on_writable(wsi); //Request a callback when this socket becomes able to be written to without blocking
 }
 
 void mqttClient::publish( std::string& topic, const std::string& payload) {

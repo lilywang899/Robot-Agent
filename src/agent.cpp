@@ -42,6 +42,16 @@ void Agent::loadConfig(const std::string& fileName) {
 
     g_mqttClient_ptr->loadConfig(fileName);
     dsService->loadConfig(fileName);
+
+	MESSAGE msg = {0};
+	msg.sid=COM_DS;
+	msg.did=COM_AGENT;
+	msg.length = 3;
+	msg.type = SMM_OutGoingRequest;
+	memcpy(msg.Union.content,"RA!",3);
+	auto p_message = std::make_shared<MESSAGE>(msg);
+	std::string topic = "test/topic0";
+	g_mqttClient_ptr->publish(topic, p_message);
 }
 
 void Agent::Start() {
@@ -49,11 +59,11 @@ void Agent::Start() {
     //create mqtt client and bundle to controller.
     client_create();
     controller = std::make_shared<Controller>();
-    g_mqttClient_ptr->setController(this);
+    g_mqttClient_ptr->setController(this); //defined in mqttClient.h
 
     //create driver station service and bundle to controller.
     dsService = std::make_shared<DSService>();
-    dsService->setController(this);
+    dsService->setController(this); //defined in dsService.h
     dsService->Init();
     loadConfig(configFile);
     controller->Start();
