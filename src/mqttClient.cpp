@@ -139,7 +139,17 @@ void mqttClient::run() {
 
   int n = 0;   
   while( (n >= 0 )&&(shutdown_ == false)) {
-   n = lws_service(context, 0);
+    n = lws_service(context, 0);
+  	if (!messages.empty()) {
+  		std::string componentName = "app";
+  		struct lws* wsi = getWsiInstance(componentName);
+  		if (wsi != nullptr) {
+  			lws_callback_on_writable(wsi); //Request a callback when this socket becomes able to be written to without blocking
+  		}
+  		else {
+  			spdlog::error("not ready");
+  		}
+  	}
   }            
   lws_context_destroy(context);
   spdlog::info("exit from thread.");
@@ -202,10 +212,15 @@ void mqttClient::publish( std::string& p_topic, const std::shared_ptr<MESSAGE>& 
       std::lock_guard<std::mutex> lock(mqttMutex);
       messages.emplace_back(msg); //member variable of mqttClient class
     }
-
-    std::string componentName = "app"; 
-    struct lws* wsi = getWsiInstance(componentName);
-    lws_callback_on_writable(wsi); //Request a callback when this socket becomes able to be written to without blocking
+ //
+ //    std::string componentName = "app";
+ //    struct lws* wsi = getWsiInstance(componentName);
+	// if (wsi != nullptr) {
+	// 	lws_callback_on_writable(wsi); //Request a callback when this socket becomes able to be written to without blocking
+	// }
+	// else {
+	// 	spdlog::error("not ready");
+	// }
 }
 
 void mqttClient::publish( std::string& topic, const std::string& payload) {
