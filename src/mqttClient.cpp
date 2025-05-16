@@ -310,7 +310,7 @@ void mqttClient::onClientWriteAble(struct lws *wsi, struct pss* pss)
                pub_param.qos =QOS0;
                pub_param.payload_len = elem.second->length;
                spdlog::info("publish topic [{}], len [{}]", pub_param.topic, pub_param.payload_len);
-               if (lws_mqtt_client_send_publish(wsi, &pub_param, elem.second.get(), pub_param.payload_len, 1)) 
+               if (lws_mqtt_client_send_publish(wsi, &pub_param, elem.second->Union.content, pub_param.payload_len, 1))
                {
                   lwsl_user("%s: failed to send publish.\n", __func__);
                }
