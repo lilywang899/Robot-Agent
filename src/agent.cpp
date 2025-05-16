@@ -72,7 +72,9 @@ void Agent::Start() {
 	memcpy(msg.Union.content,"RA!",3);
 	auto p_message = std::make_shared<MESSAGE>(msg);
 	std::string topic = "test/topic0";
-	g_mqttClient_ptr->publish(topic, p_message);
+	for (int n=0;n<20;n++) {
+		g_mqttClient_ptr->publish(topic, p_message);
+	}
 
 }
 

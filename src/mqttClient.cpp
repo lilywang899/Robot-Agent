@@ -138,11 +138,11 @@ void mqttClient::run() {
   }
 
   int n = 0;   
-  while( (n >= 0 )&&(shutdown_ == false)) {
+  while( (n >= 0 )&&(shutdown_ == false)) { //thread loop
     n = lws_service(context, 0);
-  	if (!messages.empty()) {
+  	if (!messages.empty()) { //if there are messages to be sent
   		std::string componentName = "app";
-  		struct lws* wsi = getWsiInstance(componentName);
+  		struct lws* wsi = getWsiInstance(componentName); //if a websocket is setup/"added" check callback case for details
   		if (wsi != nullptr) {
   			lws_callback_on_writable(wsi); //Request a callback when this socket becomes able to be written to without blocking
   		}
@@ -210,17 +210,8 @@ void mqttClient::publish( std::string& p_topic, const std::shared_ptr<MESSAGE>& 
     MqttMessage_ msg = std::make_pair(p_topic,p_message); //msg.first is p_topic msg.second is p_message
     {
       std::lock_guard<std::mutex> lock(mqttMutex);
-      messages.emplace_back(msg); //member variable of mqttClient class
+      messages.emplace_back(msg); //member variable of mqttClient class, queue that stores all messages waiting to be published
     }
- //
- //    std::string componentName = "app";
- //    struct lws* wsi = getWsiInstance(componentName);
-	// if (wsi != nullptr) {
-	// 	lws_callback_on_writable(wsi); //Request a callback when this socket becomes able to be written to without blocking
-	// }
-	// else {
-	// 	spdlog::error("not ready");
-	// }
 }
 
 void mqttClient::publish( std::string& topic, const std::string& payload) {
@@ -297,19 +288,20 @@ void mqttClient::onClientWriteAble(struct lws *wsi, struct pss* pss)
           }                        
 	  break;
 
-	case STATE_PUBLISH_QOS0:
+	case STATE_PUBLISH_QOS0: //where message gets published
               {
                   MqttMessage_ elem;
                   { std::lock_guard<std::mutex> lock(mqttMutex);
-                    elem = messages.front();
-                    messages.erase(messages.begin());
+                    elem = messages.front(); //get the first message from queue
+                    messages.erase(messages.begin()); //erase that message from queue
                   }
-
+				//messages are packaged as a std::pair, first is the topic, second is the message
                pub_param.topic = const_cast<char*>(elem.first.c_str());
                pub_param.topic_len = elem.first.length();
                pub_param.qos =QOS0;
                pub_param.payload_len = elem.second->length;
                spdlog::info("publish topic [{}], len [{}]", pub_param.topic, pub_param.payload_len);
+				//publish the buffer, check messages.h for packaging details
                if (lws_mqtt_client_send_publish(wsi, &pub_param, elem.second->Union.content, pub_param.payload_len, 1))
                {
                   lwsl_user("%s: failed to send publish.\n", __func__);
@@ -342,8 +334,8 @@ int mqttClient::callback( struct lws *wsi,  enum lws_callback_reasons reason,  v
 		lwsl_user("%s: MQTT_CLIENT_ESTABLISHED\n", __func__);
                 {
                 std::string componentName = "app"; 
-                addWsiInstance(componentName,wsi);
-		lws_callback_on_writable(wsi);
+                addWsiInstance(componentName,wsi); //link websocket instance with name "app", flag that websocket is setup
+		lws_callback_on_writable(wsi); //notify that wsi is writable
                 }
 		return 0;
 
