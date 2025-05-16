@@ -42,16 +42,6 @@ void Agent::loadConfig(const std::string& fileName) {
 
     g_mqttClient_ptr->loadConfig(fileName);
     dsService->loadConfig(fileName);
-
-	MESSAGE msg = {0};
-	msg.sid=COM_DS;
-	msg.did=COM_AGENT;
-	msg.length = 3;
-	msg.type = SMM_OutGoingRequest;
-	memcpy(msg.Union.content,"RA!",3);
-	auto p_message = std::make_shared<MESSAGE>(msg);
-	std::string topic = "test/topic0";
-	g_mqttClient_ptr->publish(topic, p_message);
 }
 
 void Agent::Start() {
@@ -73,6 +63,17 @@ void Agent::Start() {
     if(pthread_create(&thread_id, nullptr, EntryOfThread,this) != 0) {
         spdlog::critical("failed start agent thread.");
     }
+
+	MESSAGE msg = {0};
+	msg.sid=COM_DS;
+	msg.did=COM_AGENT;
+	msg.length = 3;
+	msg.type = SMM_OutGoingRequest;
+	memcpy(msg.Union.content,"RA!",3);
+	auto p_message = std::make_shared<MESSAGE>(msg);
+	std::string topic = "test/topic0";
+	g_mqttClient_ptr->publish(topic, p_message);
+
 }
 
 void Agent::Shutdown() {
@@ -164,7 +165,7 @@ void Agent::OnMessage(std::shared_ptr<MESSAGE> message, TCallback callback)
              message->sid = COM_AGENT; 
              message->did = COM_CONTROLLER; 
 // Enable it when the mqtt server and another client is ready.
-//             g_mqttClient_ptr->publish(topic, message);
+             g_mqttClient_ptr->publish(topic, message);
           }
           break;
        case COM_CONTROLLER:

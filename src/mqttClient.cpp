@@ -275,8 +275,9 @@ void mqttClient::onClientWriteAble(struct lws *wsi, struct pss* pss)
 
            if (lws_mqtt_client_send_subcribe(wsi, &sub_param)) 
             {
-		lwsl_notice("%s: subscribe failed\n", __func__);
-	    }
+				lwsl_notice("%s: subscribe failed\n", __func__);
+			}
+			spdlog::info("pss->state=STATE_PUBLISH_QOS0, line 280");
             pss->state=STATE_PUBLISH_QOS0;
           }                        
 	  break;
