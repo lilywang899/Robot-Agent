@@ -18,7 +18,7 @@ static const int BUFSIZE=1024;
 DSService::DSService()
 {
    /* Fill basic data */
-   in_port = 1110;
+   in_port = 1180;
    out_port= 1150;
 
    /* Fill socket info structure */
@@ -139,7 +139,12 @@ void DSService::run()
     else 
     {
         parse(buffer,buffer_size);            
-    }
+        spdlog::info("recv data [{:d} {:d} {:d} {:d} {:d} {:d} {:d} {:d} {:d} ].", 
+                      buffer[0],buffer[1],buffer[2],
+                      buffer[3],buffer[4],buffer[5],
+                      buffer[6],buffer[7],buffer[8]);
+     }
+
   }
 }
   

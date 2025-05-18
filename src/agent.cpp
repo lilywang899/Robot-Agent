@@ -63,6 +63,20 @@ void Agent::Start() {
     if(pthread_create(&thread_id, nullptr, EntryOfThread,this) != 0) {
         spdlog::critical("failed start agent thread.");
     }
+<<<<<<< HEAD
+=======
+
+	MESSAGE msg = {0};
+	msg.sid=COM_DS;
+	msg.did=COM_AGENT;
+	msg.length = 6;
+	msg.type = SMM_OutGoingRequest;
+	memcpy(msg.Union.content,"!START",6);
+	auto p_message = std::make_shared<MESSAGE>(msg);
+	std::string topic = "dummy/rx";
+	g_mqttClient_ptr->publish(topic, p_message);
+
+>>>>>>> 15a76ea (able to receive Driver Station updates)
 }
 
 void Agent::Shutdown() {
