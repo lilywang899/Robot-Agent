@@ -182,6 +182,7 @@ void DSService::parse(const char* data, unsigned int len)
             for (int n=0;n<20;n++) {
                 g_mqttClient_ptr->publish(topic, p_message);
             }
+        }
     }
 }
 int DSService::Send(const char* data, int len)
