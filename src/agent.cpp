@@ -49,11 +49,11 @@ void Agent::Start() {
     //create mqtt client and bundle to controller.
     client_create();
     controller = std::make_shared<Controller>();
-    g_mqttClient_ptr->setController(this);
+    g_mqttClient_ptr->setController(this); //defined in mqttClient.h
 
     //create driver station service and bundle to controller.
     dsService = std::make_shared<DSService>();
-    dsService->setController(this);
+    dsService->setController(this); //defined in dsService.h
     dsService->Init();
     loadConfig(configFile);
     controller->Start();
@@ -63,8 +63,6 @@ void Agent::Start() {
     if(pthread_create(&thread_id, nullptr, EntryOfThread,this) != 0) {
         spdlog::critical("failed start agent thread.");
     }
-<<<<<<< HEAD
-=======
 
 	MESSAGE msg = {0};
 	msg.sid=COM_DS;
@@ -76,7 +74,6 @@ void Agent::Start() {
 	std::string topic = "dummy/rx";
 	g_mqttClient_ptr->publish(topic, p_message);
 
->>>>>>> 15a76ea (able to receive Driver Station updates)
 }
 
 void Agent::Shutdown() {
@@ -168,7 +165,7 @@ void Agent::OnMessage(std::shared_ptr<MESSAGE> message, TCallback callback)
              message->sid = COM_AGENT; 
              message->did = COM_CONTROLLER; 
 // Enable it when the mqtt server and another client is ready.
-//             g_mqttClient_ptr->publish(topic, message);
+             g_mqttClient_ptr->publish(topic, message);
           }
           break;
        case COM_CONTROLLER:

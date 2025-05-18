@@ -139,7 +139,17 @@ void mqttClient::run() {
 
   int n = 0;   
   while( (n >= 0 )&&(shutdown_ == false)) {
-   n = lws_service(context, 0);
+    n = lws_service(context, 0);
+  	if (!messages.empty()) {
+  		std::string componentName = "app";
+  		struct lws* wsi = getWsiInstance(componentName);
+  		if (wsi != nullptr) {
+  			lws_callback_on_writable(wsi); //Request a callback when this socket becomes able to be written to without blocking
+  		}
+  		else {
+  			spdlog::error("not ready");
+  		}
+  	}
   }            
   lws_context_destroy(context);
   spdlog::info("exit from thread.");
@@ -197,15 +207,20 @@ void mqttClient::disconnect(){
 
 void mqttClient::publish( std::string& p_topic, const std::shared_ptr<MESSAGE>& p_message) {
         
-    MqttMessage_ msg = std::make_pair(p_topic,p_message);
+    MqttMessage_ msg = std::make_pair(p_topic,p_message); //msg.first is p_topic msg.second is p_message
     {
       std::lock_guard<std::mutex> lock(mqttMutex);
-      messages.emplace_back(msg);
+      messages.emplace_back(msg); //member variable of mqttClient class
     }
-
-    std::string componentName = "app"; 
-    struct lws* wsi = getWsiInstance(componentName);
-    lws_callback_on_writable(wsi);
+ //
+ //    std::string componentName = "app";
+ //    struct lws* wsi = getWsiInstance(componentName);
+	// if (wsi != nullptr) {
+	// 	lws_callback_on_writable(wsi); //Request a callback when this socket becomes able to be written to without blocking
+	// }
+	// else {
+	// 	spdlog::error("not ready");
+	// }
 }
 
 void mqttClient::publish( std::string& topic, const std::string& payload) {
@@ -275,8 +290,9 @@ void mqttClient::onClientWriteAble(struct lws *wsi, struct pss* pss)
 
            if (lws_mqtt_client_send_subcribe(wsi, &sub_param)) 
             {
-		lwsl_notice("%s: subscribe failed\n", __func__);
-	    }
+				lwsl_notice("%s: subscribe failed\n", __func__);
+			}
+			spdlog::info("pss->state=STATE_PUBLISH_QOS0, line 280");
             pss->state=STATE_PUBLISH_QOS0;
           }                        
 	  break;
@@ -294,7 +310,7 @@ void mqttClient::onClientWriteAble(struct lws *wsi, struct pss* pss)
                pub_param.qos =QOS0;
                pub_param.payload_len = elem.second->length;
                spdlog::info("publish topic [{}], len [{}]", pub_param.topic, pub_param.payload_len);
-               if (lws_mqtt_client_send_publish(wsi, &pub_param, elem.second.get(), pub_param.payload_len, 1)) 
+               if (lws_mqtt_client_send_publish(wsi, &pub_param, elem.second->Union.content, pub_param.payload_len, 1))
                {
                   lwsl_user("%s: failed to send publish.\n", __func__);
                }

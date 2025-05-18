@@ -30,6 +30,8 @@ int main(int argc, const char **argv)
     spdlog::info("Welcome to spdlog version {}.{}.{}  !", SPDLOG_VER_MAJOR, SPDLOG_VER_MINOR,SPDLOG_VER_PATCH);
     std::string mode;
     std::string configFile = "/home/lily/Robot-Agent/config/config.txt";
+    //std::string configFile = "/home/l753wang/Robot-Agent/config/config.txt";
+
     loadConfig(configFile,mode);
     if (mode == "robot") 
     {

@@ -45,7 +45,7 @@ void DSService::loadConfig(const std::string& fileName)
              std::string key = line.substr(0, pos);
              std::string value = line.substr(pos + 1);
              if (key == "in_port") {
-                 in_port = atoi(value.c_str());
+                 in_port = atoi(value.c_str()); //atoi returns str as integer, .c_str converts into character array
              }
              else if ( key =="out_port") {
                  out_port = atoi(value.c_str());
