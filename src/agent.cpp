@@ -192,6 +192,18 @@ void Agent::OnMessage(std::shared_ptr<MESSAGE> message, TCallback callback)
         	 	std::string topic = "dummy/rx";
         	 	g_mqttClient_ptr->publish(topic, p_message);
         	 }
+        	 else if (DS_enabled == true && message->Union.smm_OutGoingRequest.PhoneNumber[3] == 0) {
+        	 	DS_enabled = false;
+        	 	MESSAGE msg = {0};
+        	 	msg.sid=COM_DS;
+        	 	msg.did=COM_AGENT;
+        	 	msg.length = 6;
+        	 	msg.type = SMM_OutGoingRequest;
+        	 	memcpy(msg.Union.content,"!DISABLE",6);
+        	 	auto p_message = std::make_shared<MESSAGE>(msg);
+        	 	std::string topic = "dummy/rx";
+        	 	g_mqttClient_ptr->publish(topic, p_message);
+        	 }
           }
           break;
        case COM_CONTROLLER:
