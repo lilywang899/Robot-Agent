@@ -94,7 +94,7 @@ void* Agent::EntryOfThread(void* argv) {
     Agent* agent = static_cast<Agent*>(argv);
     agent->Run();
 }
-#if 0
+
 void Agent::Run() {
     std::vector<pollfd> poll_items;
 
@@ -107,6 +107,19 @@ void Agent::Run() {
 
 	while(!shutdown_)
 	{
+		std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
+		char data[8] ={0};
+		data[0] = 0;
+		data[1] = 1;
+		data[2] = 1;
+		data[3] = 1;
+		data[4] = 1;
+		data[5] = 1;
+		data[6] = 10;
+		data[7] = 10;
+		dsService->Send(data,8);
+
 		int rc= poll(&poll_items[0], poll_items.size(), 0);
 		if(rc <= 0)
 		{
@@ -125,23 +138,23 @@ void Agent::Run() {
 		pthread_testcancel();
 	}
 }
-#endif 
-void Agent::Run() {
-    while(1) {    
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
-    char data[8] ={0};
-    data[0] = 0;
-    data[1] = 1;
-    data[2] = 1;
-    data[3] = 1;
-    data[4] = 1;
-    data[5] = 1;
-    data[6] = 10;
-    data[7] = 10;
-    dsService->Send(data,8);   
-    }
-}
+// void Agent::Run() {
+//     while(1) {
+//     std::this_thread::sleep_for(std::chrono::milliseconds(100));
+//
+//     char data[8] ={0};
+//     data[0] = 0;
+//     data[1] = 1;
+//     data[2] = 1;
+//     data[3] = 1;
+//     data[4] = 1;
+//     data[5] = 1;
+//     data[6] = 10;
+//     data[7] = 10;
+//     dsService->Send(data,8);
+//     }
+// }
 
 void Agent::parseDsMessage() {
 
