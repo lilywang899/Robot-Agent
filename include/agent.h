@@ -52,5 +52,7 @@ class Agent {
   }
   std::string configFile;
   unsigned int counter;
+  bool DS_enabled=false;
+
 };
 

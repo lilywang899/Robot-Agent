@@ -166,6 +166,19 @@ void Agent::OnMessage(std::shared_ptr<MESSAGE> message, TCallback callback)
              message->did = COM_CONTROLLER; 
 // Enable it when the mqtt server and another client is ready.
              g_mqttClient_ptr->publish(topic, message);
+
+        	 if (DS_enabled == false && message->Union.smm_OutGoingRequest.PhoneNumber[3] == 4) {
+	        	 DS_enabled = true;
+        	 	MESSAGE msg = {0};
+        	 	msg.sid=COM_DS;
+        	 	msg.did=COM_AGENT;
+        	 	msg.length = 6;
+        	 	msg.type = SMM_OutGoingRequest;
+        	 	memcpy(msg.Union.content,"!START",6);
+        	 	auto p_message = std::make_shared<MESSAGE>(msg);
+        	 	std::string topic = "dummy/rx";
+        	 	g_mqttClient_ptr->publish(topic, p_message);
+        	 }
           }
           break;
        case COM_CONTROLLER:

@@ -48,7 +48,6 @@ class DSService {
   struct sockaddr_in serveraddr_out; /* server's addr */
   char address[512];  /**< Address of remote host */
 
-   bool enabled=false;
   Agent* agent;
   pthread_t thread_id;
 };
