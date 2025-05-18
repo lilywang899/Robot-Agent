@@ -67,11 +67,11 @@ void Agent::Start() {
 	MESSAGE msg = {0};
 	msg.sid=COM_DS;
 	msg.did=COM_AGENT;
-	msg.length = 3;
+	msg.length = 6;
 	msg.type = SMM_OutGoingRequest;
-	memcpy(msg.Union.content,"RA!",3);
+	memcpy(msg.Union.content,"!START",6);
 	auto p_message = std::make_shared<MESSAGE>(msg);
-	std::string topic = "test/topic0";
+	std::string topic = "dummy/rx";
 	g_mqttClient_ptr->publish(topic, p_message);
 
 }
