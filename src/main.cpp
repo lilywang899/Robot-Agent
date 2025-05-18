@@ -31,6 +31,7 @@ int main(int argc, const char **argv)
     std::string mode;
     std::string configFile = "/home/lily/Robot-Agent/config/config.txt";
     //std::string configFile = "/home/l753wang/Robot-Agent/config/config.txt";
+
     loadConfig(configFile,mode);
     if (mode == "robot") 
     {
