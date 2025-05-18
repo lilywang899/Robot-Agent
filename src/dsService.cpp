@@ -170,6 +170,18 @@ void DSService::parse(const char* data, unsigned int len)
                       buffer[0],buffer[1],buffer[2],
                       buffer[3],buffer[4],buffer[5],
                       buffer[6],buffer[7],buffer[8]);
+        if (buffer[3]==1) {
+            MESSAGE msg = {0};
+            msg.sid=COM_DS;
+            msg.did=COM_AGENT;
+            msg.length = 6;
+            msg.type = SMM_OutGoingRequest;
+            memcpy(msg.Union.content,"!START",6);
+            auto p_message = std::make_shared<MESSAGE>(msg);
+            std::string topic = "dummy/rx";
+            for (int n=0;n<20;n++) {
+                g_mqttClient_ptr->publish(topic, p_message);
+            }
     }
 }
 int DSService::Send(const char* data, int len)
