@@ -140,6 +140,10 @@ void DSService::run()
     else 
     {
         parse(buffer,buffer_size);
+        spdlog::info("recv data [{:d} {:d} {:d} {:d} {:d} {:d} {:d} {:d} {:d} ].", 
+                      buffer[0],buffer[1],buffer[2],
+                      buffer[3],buffer[4],buffer[5],
+                      buffer[6],buffer[7],buffer[8]);
      }
 
   }
@@ -150,8 +154,8 @@ void DSService::parse(const char* data, unsigned int len)
     unsigned controlCode= data[3];
     unsigned requestCode= data[4];
     unsigned stationCode= data[5];
-    if ( controlCode || requestCode || stationCode )
-    {
+    //if ( requestCode || stationCode )
+    //{
         // build message and send to agent.
         MESSAGE msg = {0};
         msg.sid=COM_DS;
@@ -167,7 +171,7 @@ void DSService::parse(const char* data, unsigned int len)
                       data[0],data[1],data[2],
                       data[3],data[4],data[5],
                       data[6],data[7],data[8]);
-    }
+    //}
 }
 int DSService::Send(const char* data, int len)
 {

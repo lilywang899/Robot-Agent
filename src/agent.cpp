@@ -167,8 +167,8 @@ void Agent::OnMessage(std::shared_ptr<MESSAGE> message, TCallback callback)
 {
     std::string result ="OK";
      
-    spdlog::info("Agent::OnMessage sid [{}],did[{}],type[{}],content[{}]", 
-                 message->sid,message->did,message->type,message->Union.smm_OutGoingRequest.PhoneNumber[1]);
+    //spdlog::info("Agent::OnMessage sid [{}],did[{}],type[{}],content[{}]", 
+    //             message->sid,message->did,message->type,message->Union.smm_OutGoingRequest.PhoneNumber[1]);
     callback(result);   
     switch (message->sid) 
     {
@@ -193,13 +193,14 @@ void Agent::OnMessage(std::shared_ptr<MESSAGE> message, TCallback callback)
         	 	g_mqttClient_ptr->publish(topic, p_message);
         	 }
         	 else if (DS_enabled == true && message->Union.smm_OutGoingRequest.PhoneNumber[3] == 0) {
+			spdlog::info("disable received");
         	 	DS_enabled = false;
         	 	MESSAGE msg = {0};
         	 	msg.sid=COM_DS;
         	 	msg.did=COM_AGENT;
-        	 	msg.length = 6;
+        	 	msg.length = 8;
         	 	msg.type = SMM_OutGoingRequest;
-        	 	memcpy(msg.Union.content,"!DISABLE",6);
+        	 	memcpy(msg.Union.content,"!DISABLE",8);
         	 	auto p_message = std::make_shared<MESSAGE>(msg);
         	 	std::string topic = "dummy/rx";
         	 	g_mqttClient_ptr->publish(topic, p_message);
@@ -229,7 +230,7 @@ void Agent::OnMessage(std::shared_ptr<MESSAGE> message, TCallback callback)
 //          spdlog::info("recv mqtt message [{}].", counter);
     }
     
-    spdlog::info("Agent::OnMessage send message to driver station."); 
+//    spdlog::info("Agent::OnMessage send message to driver station."); 
 }
 
 void Agent::Message(std::shared_ptr<MESSAGE> message, TCallback callback)
