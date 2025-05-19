@@ -34,6 +34,12 @@ FetchContent_MakeAvailable(libwebsockets)
 FetchContent_Declare(spdlog URL https://github.com/gabime/spdlog/archive/refs/tags/v1.15.0.tar.gz)
 FetchContent_MakeAvailable(spdlog)
 
+FetchContent_Declare(json URL https://github.com/nlohmann/json/releases/download/v3.11.3/json.tar.xz)
+FetchContent_MakeAvailable(json)
+
+FetchContent_Declare(yaml URL https://github.com/jbeder/yaml-cpp/archive/refs/tags/yaml-cpp-0.7.0.tar.gz)
+FetchContent_MakeAvailable(yaml)
+
 add_executable(
         agent
         src/wrapper.cpp
@@ -45,6 +51,7 @@ add_executable(
         src/dsService.cpp
         src/agent.cpp
         src/console.cpp
+	src/file_logger.cpp
 )
 #cmake_print_variables(${LIBWEBSOCKETS_INCLUDE_DIRS})
 
@@ -62,6 +69,8 @@ target_link_libraries(
        #crypto
        websockets
        spdlog
+       nlohmann_json::nlohmann_json
+        yaml-cpp::yaml-cpp
 )
 #target_compile_options(mqtt PRIVATE -Wall -Wextra -pedantic -Werror -Wno-unused-function)
 target_compile_options(agent PRIVATE -Wall -Wextra -Wno-unused-function)

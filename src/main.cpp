@@ -22,6 +22,7 @@
 
 using namespace spdlog;
 //#include "spdlog"
+int init_logging();
 
 void loadConfig(const std::string& fileName, std::string& mode);
 int main(int argc, const char **argv)
@@ -31,6 +32,8 @@ int main(int argc, const char **argv)
     std::string mode;
     std::string configFile = "/home/lily/Robot-Agent/config/config.txt";
     //std::string configFile = "/home/l753wang/Robot-Agent/config/config.txt";
+
+    init_logging();
 
     loadConfig(configFile,mode);
     if (mode == "robot") 
