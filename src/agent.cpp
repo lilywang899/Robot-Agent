@@ -31,8 +31,15 @@
 #include <chrono>
 
 using namespace spdlog;
-int bitToIndex(unsigned char value);
 
+int bitToIndex(unsigned char value) {
+	int index = 0;
+	while (value > 1) {
+		value >>= 1;
+		index++;
+	}
+	return index + 1; // 1-based index
+}
 Agent::Agent (const std::string& configFile) :configFile(configFile)
 {
     shutdown_ = false;
@@ -208,9 +215,15 @@ void Agent::OnMessage(std::shared_ptr<MESSAGE> message, TCallback callback)
         	 }
         	 else if (DS_enabled == true && message->Union.smm_OutGoingRequest.PhoneNumber[7] != 0 && message->Union.smm_OutGoingRequest.PhoneNumber[7] != DS_joint_enabled) {
         	 	spdlog::info("joint enable received");
+
         	 	int joint_index = bitToIndex(message->Union.smm_OutGoingRequest.PhoneNumber[7]);
         	 	DS_joint_enabled = joint_index;
         	 	spdlog::info("joint %d enabled", DS_joint_enabled);
+        	 	dummy_joint_control[joint_index]+= 10;
+        	 	DS_message[0]='&';
+        	 	for (size_t i=1 ; i<sizeof(dummy_joint_control) ; i++)
+        	 		DS_message[i] = (unsigned char)dummy_joint_control[i-1];
+        	 	spdlog::info("!!!!!!!!!!!!!!!!!DS_message", DS_message);
     //     	 	size_t index=0;
 				// for (size_t i=0; i < sizeof(DS_joint_control);i++) {
 				// 	if (DS_joint_control[i]==',') {
