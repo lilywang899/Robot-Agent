@@ -53,6 +53,10 @@ class Agent {
   std::string configFile;
   unsigned int counter;
   bool DS_enabled=false;
+  int DS_joint_enabled=100;
+  //unsigned char DS_joint_control[100]="&0,-71,180,0,0,0,160";
+  //std::vector<std::string> DS_joint_control = {"&", "0", "-71","180","0","0","0","160"};
 
+  //unsigned char DS_message[100];
 };
 

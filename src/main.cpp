@@ -82,3 +82,11 @@ void loadConfig(const std::string& fileName, std::string& mode)
      }
 }
 
+int bitToIndex(unsigned char value) {
+    int index = 0;
+    while (value > 1) {
+        value >>= 1;
+        index++;
+    }
+    return index + 1; // 1-based index
+}
