@@ -430,7 +430,7 @@ void mqttClient::processMessage(void* in, size_t len, struct lws* wsi)
 
 void mqttClient::AsyncResult( std::string& result) 
 {
-      spdlog::info("AsyncResult is [{}]",result);
+//      spdlog::info("AsyncResult is [{}]",result);
 }
 
 void mqttClient::addWsiInstance( std::string& componentName, struct lws *wsi)

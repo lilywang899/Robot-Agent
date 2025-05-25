@@ -59,7 +59,7 @@ int init_logging()
  try
  {
   //load config file in config folder to get the log file path specified (all log files go to log folder)
-  Node configObj = LoadFile("/home/lily/Robot-Agent/config/ds_config.yaml");
+  Node configObj = LoadFile("/home/lily/Robot-Agent/config/log_config.yaml");
   const char * logLevel = configObj["logger_config"]["log_level"].as<std::string>().c_str();
   const std::string logPath = configObj["logger_config"]["log_file_path"].as<std::string>();
   spdlog::info("yaml configObj.logger_config.log_level : {}", logLevel);

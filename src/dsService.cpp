@@ -180,7 +180,7 @@ int DSService::Send(const char* data, int len)
 }
 void DSService::AsyncResult( std::string& result) 
 {
-      spdlog::info("AsyncResult is [{}]",result);
+//      spdlog::info("AsyncResult is [{}]",result);
 }
 
 

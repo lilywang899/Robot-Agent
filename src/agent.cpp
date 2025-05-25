@@ -218,12 +218,17 @@ void Agent::OnMessage(std::shared_ptr<MESSAGE> message, TCallback callback)
 
         	 	int joint_index = bitToIndex(message->Union.smm_OutGoingRequest.PhoneNumber[7]);
         	 	DS_joint_enabled = joint_index;
-        	 	spdlog::info("joint %d enabled", DS_joint_enabled);
+        	 	spdlog::info("joint {}  enabled", DS_joint_enabled);
         	 	dummy_joint_control[joint_index]+= 10;
-        	 	DS_message[0]='&';
-        	 	for (size_t i=1 ; i<sizeof(dummy_joint_control) ; i++)
-        	 		DS_message[i] = (unsigned char)dummy_joint_control[i-1];
-        	 	spdlog::info("!!!!!!!!!!!!!!!!!DS_message", DS_message);
+
+			MESSAGE msg = {0};
+        	 	msg.Union.content[0]='&';
+			for (size_t i=1 ; i<sizeof(dummy_joint_control); i+=2)   {
+        	 		msg.Union.content[i] = (unsigned char)dummy_joint_control[i-1];
+        	 		if (i!=sizeof(dummy_joint_control))
+        	 			msg.Union.content[i+1] = ',';
+        	 	};
+        	 	spdlog::info("!!!!!!!!!!!!!!!!!DS_message {}", msg.Union.content[2]);
     //     	 	size_t index=0;
 				// for (size_t i=0; i < sizeof(DS_joint_control);i++) {
 				// 	if (DS_joint_control[i]==',') {
@@ -241,12 +246,12 @@ void Agent::OnMessage(std::shared_ptr<MESSAGE> message, TCallback callback)
     //     	 	// Convert to unsigned char array (pointer)
     //     	 	DS_message = reinterpret_cast<unsigned char>(combined.c_str());
 
-        	 	MESSAGE msg = {0};
+        	 
         	 	msg.sid=COM_DS;
         	 	msg.did=COM_AGENT;
         	 	msg.length = 20;
         	 	msg.type = SMM_OutGoingRequest;
-        	 	memcpy(msg.Union.content,"&10,-71,180,0,0,0,160",20);
+        	 	//memcpy(msg.Union.content,"&10,-71,180,0,0,0,160",20);
         	 	auto p_message = std::make_shared<MESSAGE>(msg);
         	 	std::string topic = "dummy/rx";
         	 	g_mqttClient_ptr->publish(topic, p_message);
