@@ -221,14 +221,17 @@ void Agent::OnMessage(std::shared_ptr<MESSAGE> message, TCallback callback)
         	 	spdlog::info("joint {}  enabled", DS_joint_enabled);
         	 	dummy_joint_control[joint_index]+= 10;
 
-			MESSAGE msg = {0};
-        	 	msg.Union.content[0]='&';
-			for (size_t i=1 ; i<sizeof(dummy_joint_control); i+=2)   {
-        	 		msg.Union.content[i] = (unsigned char)dummy_joint_control[i-1];
-        	 		if (i!=sizeof(dummy_joint_control))
-        	 			msg.Union.content[i+1] = ',';
-        	 	};
-        	 	spdlog::info("!!!!!!!!!!!!!!!!!DS_message {}", msg.Union.content[2]);
+        	 	//msg.Union.content[0]='&';
+        	 	char joint_string[256];  // Make sure this is big enough
+        	 	snprintf(joint_string, sizeof(joint_string), "&%d,%d,%d,%d,%d,%d,%d",
+						  dummy_joint_control[0],
+						  dummy_joint_control[1],
+						  dummy_joint_control[2],
+						  dummy_joint_control[3],
+						  dummy_joint_control[4],
+						  dummy_joint_control[5],
+						  dummy_joint_control[6]);
+        	 		//spdlog::info("!!!!!!!!!!!!!!!!!DS_message {}", msg.Union.content[2]);
     //     	 	size_t index=0;
 				// for (size_t i=0; i < sizeof(DS_joint_control);i++) {
 				// 	if (DS_joint_control[i]==',') {
@@ -246,12 +249,12 @@ void Agent::OnMessage(std::shared_ptr<MESSAGE> message, TCallback callback)
     //     	 	// Convert to unsigned char array (pointer)
     //     	 	DS_message = reinterpret_cast<unsigned char>(combined.c_str());
 
-        	 
+        	 	MESSAGE msg = {0};
         	 	msg.sid=COM_DS;
         	 	msg.did=COM_AGENT;
         	 	msg.length = 20;
         	 	msg.type = SMM_OutGoingRequest;
-        	 	//memcpy(msg.Union.content,"&10,-71,180,0,0,0,160",20);
+        	 	memcpy(msg.Union.content,joint_string,20);
         	 	auto p_message = std::make_shared<MESSAGE>(msg);
         	 	std::string topic = "dummy/rx";
         	 	g_mqttClient_ptr->publish(topic, p_message);
