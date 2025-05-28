@@ -12,6 +12,9 @@
 #include <fstream>
 #include <algorithm>
 #include "controller.h"
+#include "spdlog/fmt/bin_to_hex.h"
+
+
 
 using namespace std::placeholders;
 static const int BUFSIZE=1024;
@@ -140,11 +143,8 @@ void DSService::run()
     else 
     {
         parse(buffer,buffer_size);
-        spdlog::info("recv data [{:d} {:d} {:d} {:d} {:d} {:d} {:d} {:d} {:d} ].", 
-                      buffer[0],buffer[1],buffer[2],
-                      buffer[3],buffer[4],buffer[5],
-                      buffer[6],buffer[7],buffer[8]);
-     }
+        spdlog::info("recv data[:{:n}]", spdlog::to_hex(std::begin(buffer), std::begin(buffer) + 38));  
+  }
 
   }
 }
