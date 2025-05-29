@@ -139,7 +139,7 @@ void mqttClient::run() {
 
   int n = 0;   
   while( (n >= 0 )&&(shutdown_ == false)) {
-    n = lws_service(context, 0);
+    n = lws_service(context,0);
   	if (!messages.empty()) {
   		std::string componentName = "app";
   		struct lws* wsi = getWsiInstance(componentName);

@@ -188,7 +188,7 @@ void Agent::OnMessage(std::shared_ptr<MESSAGE> message, TCallback callback)
 // Enable it when the mqtt server and another client is ready.
              g_mqttClient_ptr->publish(topic, message);
 
-
+#if 0
         	bool enabled = bitToIndex(message->Union.smm_OutGoingRequest.PhoneNumber[3]);
         	int joint_index = bitToIndex(message->Union.smm_OutGoingRequest.PhoneNumber[7]);
         	int dummy_joint_angle = bitToIndex(message->Union.smm_OutGoingRequest.PhoneNumber[18]);
@@ -223,13 +223,58 @@ void Agent::OnMessage(std::shared_ptr<MESSAGE> message, TCallback callback)
         	 	DS_joint_enabled = joint_index;
         	 	spdlog::info("joint {}  enabled", DS_joint_enabled);
         	 	dummy_joint_angle = message->Union.smm_OutGoingRequest.PhoneNumber[18];
-				if (dummy_joint_angle!=-1) { //default sent from hat is -1, in between each press, release counts as default so no need to check repeat since there's always a default in between each press, even if same button is pressed
+			spdlog::info("dummy_joint_angle = {}", dummy_joint_angle);
+				if (dummy_joint_angle!=255) { //default sent from hat is -1 or 255, in between each press, release counts as default so no need to check repeat since there's always a default in between each press, even if same button is pressed
 					dummy_joint_angle = dummy_joint_angle / 5;
 					dummy_joint_control[joint_index]+= dummy_joint_angle;
+					spdlog::info("dummy_joint_control[{}] == {}", joint_index, dummy_joint_angle);
+
 				}
 
         	 	//msg.Union.content[0]='&';
-        	 	char joint_string[256];  // Make sure this is big enough
+        	 	
+#endif
+bool enabled = bitToIndex(message->Union.smm_OutGoingRequest.PhoneNumber[3]);
+        	int joint_index = bitToIndex(message->Union.smm_OutGoingRequest.PhoneNumber[15]);
+        	if (DS_enabled == false && enabled == true) {
+	        	 DS_enabled = true;
+        	 	MESSAGE msg = {0};
+        	 	msg.sid=COM_DS;
+        	 	msg.did=COM_AGENT;
+        	 	msg.length = 6;
+        	 	msg.type = SMM_OutGoingRequest;
+        	 	memcpy(msg.Union.content,"!START",6);
+        	 	auto p_message = std::make_shared<MESSAGE>(msg);
+        	 	std::string topic = "dummy/rx";
+        	 	g_mqttClient_ptr->publish(topic, p_message);
+        	 }
+        	 else if (DS_enabled == true && enabled == false) {
+			spdlog::info("disable received");
+        	 	DS_enabled = false;
+        	 	MESSAGE msg = {0};
+        	 	msg.sid=COM_DS;
+        	 	msg.did=COM_AGENT;
+        	 	msg.length = 8;
+        	 	msg.type = SMM_OutGoingRequest;
+        	 	memcpy(msg.Union.content,"!DISABLE",8);
+        	 	auto p_message = std::make_shared<MESSAGE>(msg);
+        	 	std::string topic = "dummy/rx";
+        	 	g_mqttClient_ptr->publish(topic, p_message);
+        	 }
+        	 else if (DS_enabled == true && (message->Union.smm_OutGoingRequest.PhoneNumber[15] != 0 || DS_joint_enabled!=100)) {
+        	 	spdlog::info("joint enable received");
+				if (message->Union.smm_OutGoingRequest.PhoneNumber[15] != 0)
+        	 		DS_joint_enabled = joint_index;
+        	 	spdlog::info("joint {}  enabled", DS_joint_enabled);
+        	 	dummy_joint_angle = message->Union.smm_OutGoingRequest.PhoneNumber[18];
+        	 	spdlog::info("dummy_joint_angle = {}", dummy_joint_angle);
+				if (dummy_joint_angle!=255 && hat_control_sent == false) { //default sent from hat is -1 or 255 in unsigned int, in between each press, release counts as default so no need to check repeat since there's always a default in between each press, even if same button is pressed
+					hat_control_sent = true;
+					dummy_joint_angle = dummy_joint_angle / 5;
+					dummy_joint_control[DS_joint_enabled]+= dummy_joint_angle;
+					spdlog::info("dummy_joint_control[{}] == {}", DS_joint_enabled, dummy_joint_angle);
+
+char joint_string[256];  // Make sure this is big enough
         	 	snprintf(joint_string, sizeof(joint_string), "&%d,%d,%d,%d,%d,%d,%d",
 						  dummy_joint_control[0],
 						  dummy_joint_control[1],
@@ -247,8 +292,12 @@ void Agent::OnMessage(std::shared_ptr<MESSAGE> message, TCallback callback)
         	 	memcpy(msg.Union.content,joint_string,msg.length);
         	 	auto p_message = std::make_shared<MESSAGE>(msg);
         	 	std::string topic = "dummy/rx";
-        	 	g_mqttClient_ptr->publish(topic, p_message);
-        	 }
+        	 	g_mqttClient_ptr->publish(topic, p_message);  
+
+				}
+        	 	else if (dummy_joint_angle == 255)
+        	 		hat_control_sent = false;
+	   	 }
           }
           break;
        case COM_CONTROLLER:

@@ -64,6 +64,6 @@ class Agent {
    {-720, 720}
   };
  int dummy_joint_angle=-1;
-
+ bool hat_control_sent=false;
 };
 
