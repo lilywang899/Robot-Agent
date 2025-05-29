@@ -137,19 +137,9 @@ void mqttClient::run() {
      lwsl_err("lws init failed\n");
   }
 
-  int n = 0;   
+  int  n = 0;
   while( (n >= 0 )&&(shutdown_ == false)) {
-    n = lws_service(context,0);
-  	if (!messages.empty()) {
-  		std::string componentName = "app";
-  		struct lws* wsi = getWsiInstance(componentName);
-  		if (wsi != nullptr) {
-  			lws_callback_on_writable(wsi); //Request a callback when this socket becomes able to be written to without blocking
-  		}
-  		else {
-  			spdlog::error("not ready");
-  		}
-  	}
+     n = lws_service(context,0);
   }            
   lws_context_destroy(context);
   spdlog::info("exit from thread.");
@@ -206,21 +196,21 @@ void mqttClient::disconnect(){
 }
 
 void mqttClient::publish( std::string& p_topic, const std::shared_ptr<MESSAGE>& p_message) {
-        
+    spdlog::info("mqtt publish added to queue, queue size = {}", messages.size());    
     MqttMessage_ msg = std::make_pair(p_topic,p_message); //msg.first is p_topic msg.second is p_message
     {
       std::lock_guard<std::mutex> lock(mqttMutex);
       messages.emplace_back(msg); //member variable of mqttClient class
     }
- //
- //    std::string componentName = "app";
- //    struct lws* wsi = getWsiInstance(componentName);
-	// if (wsi != nullptr) {
-	// 	lws_callback_on_writable(wsi); //Request a callback when this socket becomes able to be written to without blocking
-	// }
-	// else {
-	// 	spdlog::error("not ready");
-	// }
+ 
+    std::string componentName = "app";
+    struct lws* wsi = getWsiInstance(componentName);
+    if (wsi != nullptr) {
+	lws_callback_on_writable(wsi); //Request a callback when this socket becomes able to be written to without blocking
+    }
+   else {
+ 	spdlog::error("not ready");
+   }
 }
 
 void mqttClient::publish( std::string& topic, const std::string& payload) {
@@ -349,6 +339,7 @@ int mqttClient::callback( struct lws *wsi,  enum lws_callback_reasons reason,  v
 
 	case LWS_CALLBACK_MQTT_SUBSCRIBED:
 		lwsl_user("%s: MQTT_SUBSCRIBED\n", __func__);
+		lws_callback_on_writable(wsi);
 		break;
 
 	case LWS_CALLBACK_MQTT_CLIENT_WRITEABLE:
