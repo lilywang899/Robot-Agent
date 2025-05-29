@@ -54,9 +54,16 @@ class Agent {
   unsigned int counter;
   bool DS_enabled=false;
   int DS_joint_enabled=100;
-  int dummy_joint_control[100] = {0,-71,180,0,0,0,160};
-  unsigned char DS_message[100]="";
-  //std::vector<std::string> DS_joint_control = {"&", "0", "-71","180","0","0","0","160"};
+  int dummy_joint_control[100] = {0,-71,180,0,0,0,10};
+  std::vector<std::pair<int, int>> dummy_joint_limit = {
+   {-170, 170},
+   {-73, 90},
+   {35, 180},
+   {-180, 180},
+   {-120, 120},
+   {-720, 720}
+  };
+ int dummy_joint_angle=-1;
 
 };
 

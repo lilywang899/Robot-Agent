@@ -191,6 +191,7 @@ void Agent::OnMessage(std::shared_ptr<MESSAGE> message, TCallback callback)
 
         	bool enabled = bitToIndex(message->Union.smm_OutGoingRequest.PhoneNumber[3]);
         	int joint_index = bitToIndex(message->Union.smm_OutGoingRequest.PhoneNumber[7]);
+        	int dummy_joint_angle = bitToIndex(message->Union.smm_OutGoingRequest.PhoneNumber[18]);
         	 if (DS_enabled == false && enabled == true) {
 	        	 DS_enabled = true;
         	 	MESSAGE msg = {0};
@@ -221,7 +222,11 @@ void Agent::OnMessage(std::shared_ptr<MESSAGE> message, TCallback callback)
 
         	 	DS_joint_enabled = joint_index;
         	 	spdlog::info("joint {}  enabled", DS_joint_enabled);
-        	 	dummy_joint_control[joint_index]+= 10;
+        	 	dummy_joint_angle = message->Union.smm_OutGoingRequest.PhoneNumber[18];
+				if (dummy_joint_angle!=-1) { //default sent from hat is -1, in between each press, release counts as default so no need to check repeat since there's always a default in between each press, even if same button is pressed
+					dummy_joint_angle = dummy_joint_angle / 5;
+					dummy_joint_control[joint_index]+= dummy_joint_angle;
+				}
 
         	 	//msg.Union.content[0]='&';
         	 	char joint_string[256];  // Make sure this is big enough
