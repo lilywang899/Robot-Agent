@@ -181,8 +181,8 @@ void Agent::parseDsMessage(std::shared_ptr<MESSAGE> message, TCallback callback)
         if (dummy_joint_angle != 255 &&
         hat_control_sent ==
         false) { // default sent from hat is -1 or 255 in unsigned int, in
-                 // between each press, release counts as default so no need
-                 // to check repeat since there's always a default in between each press, even if same button is pressed
+            // between each press, release counts as default so no need
+            // to check repeat since there's always a default in between each press, even if same button is pressed
             hat_control_sent  = true;
             dummy_joint_angle = dummy_joint_angle / 5;
             dummy_joint_control[DS_joint_enabled] += dummy_joint_angle;
@@ -207,13 +207,14 @@ void Agent::parseDsMessage(std::shared_ptr<MESSAGE> message, TCallback callback)
 
         } else if (dummy_joint_angle == 255)
             hat_control_sent = false;
+    }
 }
 void Agent::OnMessage (std::shared_ptr<MESSAGE> message, TCallback callback) {
+    std::string result ="OK";
     callback (result);
     switch (message->sid) {
     case COM_DS: {
         Agent::parseDsMessage (message,callback);
-        }
     } break;
     case COM_CONTROLLER: {
         char data[8] = { 0 };
