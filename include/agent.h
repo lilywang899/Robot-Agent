@@ -37,7 +37,7 @@ class Agent {
  private:
   static void* EntryOfThread(void* argv);
   void Run();
-  void parseDsMessage();
+  void parseDsMessage(std::shared_ptr<MESSAGE> message, TCallback callback);
   void parseRobotMessage();
   std::shared_ptr<DSService> dsService;   
   std::shared_ptr<Controller> controller;
