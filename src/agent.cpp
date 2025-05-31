@@ -34,10 +34,14 @@ using namespace spdlog;
 
 int bitToIndex(unsigned char value) {
 	int index = 0;
+        if (value){
 	while (value > 1) {
 		value >>= 1;
 		index++;
-	}
+	}}
+else{
+    return index;
+}
 	return index + 1; // 1-based index
 }
 Agent::Agent (const std::string& configFile) :configFile(configFile)
@@ -182,62 +186,11 @@ void Agent::OnMessage(std::shared_ptr<MESSAGE> message, TCallback callback)
     {
         case COM_DS:
           {
-             std::string topic = "test/topic0";
-             message->sid = COM_AGENT; 
-             message->did = COM_CONTROLLER; 
-// Enable it when the mqtt server and another client is ready.
-             g_mqttClient_ptr->publish(topic, message);
-
-#if 0
-        	bool enabled = bitToIndex(message->Union.smm_OutGoingRequest.PhoneNumber[3]);
-        	int joint_index = bitToIndex(message->Union.smm_OutGoingRequest.PhoneNumber[7]);
-        	int dummy_joint_angle = bitToIndex(message->Union.smm_OutGoingRequest.PhoneNumber[18]);
-        	 if (DS_enabled == false && enabled == true) {
-	        	 DS_enabled = true;
-        	 	MESSAGE msg = {0};
-        	 	msg.sid=COM_DS;
-        	 	msg.did=COM_AGENT;
-        	 	msg.length = 6;
-        	 	msg.type = SMM_OutGoingRequest;
-        	 	memcpy(msg.Union.content,"!START",6);
-        	 	auto p_message = std::make_shared<MESSAGE>(msg);
-        	 	std::string topic = "dummy/rx";
-        	 	g_mqttClient_ptr->publish(topic, p_message);
-        	 }
-        	 else if (DS_enabled == true && enabled == false) {
-			spdlog::info("disable received");
-        	 	DS_enabled = false;
-        	 	MESSAGE msg = {0};
-        	 	msg.sid=COM_DS;
-        	 	msg.did=COM_AGENT;
-        	 	msg.length = 8;
-        	 	msg.type = SMM_OutGoingRequest;
-        	 	memcpy(msg.Union.content,"!DISABLE",8);
-        	 	auto p_message = std::make_shared<MESSAGE>(msg);
-        	 	std::string topic = "dummy/rx";
-        	 	g_mqttClient_ptr->publish(topic, p_message);
-        	 }
-        	 else if (DS_enabled == true && message->Union.smm_OutGoingRequest.PhoneNumber[7] != 0 && joint_index != DS_joint_enabled) {
-        	 	spdlog::info("joint enable received");
-
-        	 	DS_joint_enabled = joint_index;
-        	 	spdlog::info("joint {}  enabled", DS_joint_enabled);
-        	 	dummy_joint_angle = message->Union.smm_OutGoingRequest.PhoneNumber[18];
-			spdlog::info("dummy_joint_angle = {}", dummy_joint_angle);
-				if (dummy_joint_angle!=255) { //default sent from hat is -1 or 255, in between each press, release counts as default so no need to check repeat since there's always a default in between each press, even if same button is pressed
-					dummy_joint_angle = dummy_joint_angle / 5;
-					dummy_joint_control[joint_index]+= dummy_joint_angle;
-					spdlog::info("dummy_joint_control[{}] == {}", joint_index, dummy_joint_angle);
-
-				}
-
-        	 	//msg.Union.content[0]='&';
-        	 	
-#endif
 bool enabled = bitToIndex(message->Union.smm_OutGoingRequest.PhoneNumber[3]);
         	int joint_index = bitToIndex(message->Union.smm_OutGoingRequest.PhoneNumber[15]);
         	if (DS_enabled == false && enabled == true) {
-	        	 DS_enabled = true;
+	                spdlog::info("enable received");
+                        DS_enabled = true;
         	 	MESSAGE msg = {0};
         	 	msg.sid=COM_DS;
         	 	msg.did=COM_AGENT;
