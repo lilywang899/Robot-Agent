@@ -260,10 +260,12 @@ void mqttClient::onClientWriteAble(struct lws *wsi, struct pss *pss) {
   case STATE_PUBLISH_QOS0: {
     MqttMessage_ elem; {
       std::lock_guard<std::mutex> lock(mqttMutex);
-      if (!messages.empty()) {
+      if (messages.empty()) {
+          spdlog::info("no message to publish yet");
+        return;
+    }
         elem = messages.front();
         messages.erase(messages.begin());
-    }
   }
 
     pub_param.topic = const_cast<char *>(elem.first.c_str());
