@@ -143,7 +143,7 @@ void Agent::parseRobotMessage() {
 
 }
 
-std::make_shared<MESSAGE> Agent::parseDsMessage(std::shared_ptr<MESSAGE> message, TCallback callback) {
+std::shared_ptr<MESSAGE> Agent::parseDsMessage(std::shared_ptr<MESSAGE> message, TCallback callback) {
     bool enabled = bitToIndex (message->Union.smm_OutGoingRequest.PhoneNumber[3]);
     int joint_index = bitToIndex (message->Union.smm_OutGoingRequest.PhoneNumber[15]);
     char buf_string[256]; // Make sure this is big enough
@@ -192,7 +192,7 @@ std::make_shared<MESSAGE> Agent::parseDsMessage(std::shared_ptr<MESSAGE> message
     msg.length  = strlen (buf_string);
     memcpy (msg.Union.content, buf_string, msg.length);
     auto p_message = std::make_shared<MESSAGE> (msg);
-    
+
     return p_message;
 }
 void Agent::OnMessage (std::shared_ptr<MESSAGE> message, TCallback callback) {
@@ -202,7 +202,7 @@ void Agent::OnMessage (std::shared_ptr<MESSAGE> message, TCallback callback) {
     case COM_DS: {
         std::string topic = "dummy/rx";
 
-        std::make_shared<MESSAGE> p_message = Agent::parseDsMessage (message,callback);
+        std::shared_ptr<MESSAGE> p_message = Agent::parseDsMessage (message,callback);
         g_mqttClient_ptr->publish (topic, p_message);
 
     } break;
