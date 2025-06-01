@@ -145,8 +145,8 @@ void Agent::parseRobotMessage() {
 
 std::shared_ptr<MESSAGE> Agent::parseDsMessage(std::shared_ptr<MESSAGE> message, TCallback callback) {
     bool enabled = bitToIndex (message->Union.smm_OutGoingRequest.PhoneNumber[3]);
-    int joint_index = bitToIndex (message->Union.smm_OutGoingRequest.PhoneNumber[15]);
-    char buf_string[256]; // Make sure this is big enough
+    int joint_index = bitToIndex ( message->Union.smm_OutGoingRequest.PhoneNumber[15]);
+    char buf_string[256]={0}; // Make sure this is big enough
     MESSAGE msg = { 0 };
     msg.sid     = COM_DS;
     msg.did     = COM_AGENT;
@@ -168,11 +168,11 @@ std::shared_ptr<MESSAGE> Agent::parseDsMessage(std::shared_ptr<MESSAGE> message,
         if (message->Union.smm_OutGoingRequest.PhoneNumber[15] != 0)
             DS_joint_enabled = joint_index;
         spdlog::info ("joint {}  enabled", DS_joint_enabled);
-        dummy_joint_angle = message->Union.smm_OutGoingRequest.PhoneNumber[18];
+        dummy_joint_angle = (message->Union.smm_OutGoingRequest.PhoneNumber[17]<<8) | message->Union.smm_OutGoingRequest.PhoneNumber[18];
         spdlog::info ("dummy_joint_angle = {}", dummy_joint_angle);
-        if (dummy_joint_angle != 255 &&
+        if (dummy_joint_angle != 65535  &&
         hat_control_sent ==
-        false) { // default sent from hat is -1 or 255 in unsigned int, in
+        false) { // default sent from hat is -1 or 65535 in unsigned int, in
             // between each press, release counts as default so no need
             // to check repeat since there's always a default in between each press, even if same button is pressed
             hat_control_sent  = true;
@@ -186,7 +186,7 @@ std::shared_ptr<MESSAGE> Agent::parseDsMessage(std::shared_ptr<MESSAGE> message,
             dummy_joint_control[2], dummy_joint_control[3], dummy_joint_control[4],
             dummy_joint_control[5], dummy_joint_control[6]);
 
-        } else if (dummy_joint_angle == 255)
+        } else if (dummy_joint_angle == 65535)
             hat_control_sent = false;
     }
     msg.length  = strlen (buf_string);
@@ -203,7 +203,9 @@ void Agent::OnMessage (std::shared_ptr<MESSAGE> message, TCallback callback) {
         std::string topic = "dummy/rx";
 
         std::shared_ptr<MESSAGE> p_message = Agent::parseDsMessage (message,callback);
-        g_mqttClient_ptr->publish (topic, p_message);
+
+        if (p_message->length != 0)
+            g_mqttClient_ptr->publish (topic, p_message);
 
     } break;
     case COM_CONTROLLER: {
