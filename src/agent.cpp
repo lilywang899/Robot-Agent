@@ -146,30 +146,22 @@ void Agent::parseRobotMessage() {
 void Agent::parseDsMessage(std::shared_ptr<MESSAGE> message, TCallback callback) {
     bool enabled = bitToIndex (message->Union.smm_OutGoingRequest.PhoneNumber[3]);
     int joint_index = bitToIndex (message->Union.smm_OutGoingRequest.PhoneNumber[15]);
+    char buf_string[256]; // Make sure this is big enough
+    MESSAGE msg = { 0 };
+    msg.sid     = COM_DS;
+    msg.did     = COM_AGENT;
+    msg.type    = SMM_OutGoingRequest;
+
     if (DS_enabled == false && enabled == true) {
         spdlog::info ("enable received");
         DS_enabled  = true;
-        MESSAGE msg = { 0 };
-        msg.sid     = COM_DS;
-        msg.did     = COM_AGENT;
-        msg.length  = 6;
-        msg.type    = SMM_OutGoingRequest;
-        memcpy (msg.Union.content, "!START", 6);
-        auto p_message    = std::make_shared<MESSAGE> (msg);
-        std::string topic = "dummy/rx";
-        g_mqttClient_ptr->publish (topic, p_message);
+        strcpy(buf_string,"!START");
+
     } else if (DS_enabled == true && enabled == false) {
         spdlog::info ("disable received");
         DS_enabled  = false;
-        MESSAGE msg = { 0 };
-        msg.sid     = COM_DS;
-        msg.did     = COM_AGENT;
-        msg.length  = 8;
-        msg.type    = SMM_OutGoingRequest;
-        memcpy (msg.Union.content, "!DISABLE", 8);
-        auto p_message    = std::make_shared<MESSAGE> (msg);
-        std::string topic = "dummy/rx";
-        g_mqttClient_ptr->publish (topic, p_message);
+        strcpy(buf_string,"!DISABLE");
+
     } else if (DS_enabled == true &&
     (message->Union.smm_OutGoingRequest.PhoneNumber[15] != 0 || DS_joint_enabled != 100)) {
         spdlog::info ("joint enable received");
@@ -189,25 +181,19 @@ void Agent::parseDsMessage(std::shared_ptr<MESSAGE> message, TCallback callback)
             spdlog::info ("dummy_joint_control[{}] == {}", DS_joint_enabled,
             dummy_joint_angle);
 
-            char joint_string[256]; // Make sure this is big enough
-            snprintf (joint_string, sizeof (joint_string), "&%d,%d,%d,%d,%d,%d,%d",
+            snprintf (buf_string, sizeof (buf_string), "&%d,%d,%d,%d,%d,%d,%d",
             dummy_joint_control[0], dummy_joint_control[1],
             dummy_joint_control[2], dummy_joint_control[3], dummy_joint_control[4],
             dummy_joint_control[5], dummy_joint_control[6]);
 
-            MESSAGE msg = { 0 };
-            msg.sid     = COM_DS;
-            msg.did     = COM_AGENT;
-            msg.length  = strlen (joint_string);
-            msg.type    = SMM_OutGoingRequest;
-            memcpy (msg.Union.content, joint_string, msg.length);
-            auto p_message    = std::make_shared<MESSAGE> (msg);
-            std::string topic = "dummy/rx";
-            g_mqttClient_ptr->publish (topic, p_message);
-
         } else if (dummy_joint_angle == 255)
             hat_control_sent = false;
     }
+    msg.length  = strlen (buf_string);
+    memcpy (msg.Union.content, buf_string, msg.length);
+    auto p_message    = std::make_shared<MESSAGE> (msg);
+    std::string topic = "dummy/rx";
+    g_mqttClient_ptr->publish (topic, p_message);
 }
 void Agent::OnMessage (std::shared_ptr<MESSAGE> message, TCallback callback) {
     std::string result ="OK";
