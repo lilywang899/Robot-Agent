@@ -1,6 +1,7 @@
 mode = agent
 topic = test/topic0
 topic = test/topic1
+topic = dummy/tx
 client_id = lwsMqttClient
 username = lwsUser
 password = mySecretPassword

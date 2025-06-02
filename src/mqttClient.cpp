@@ -249,7 +249,7 @@ void mqttClient::onClientWriteAble(struct lws *wsi, struct pss *pss) {
     sub_param.num_topics = topics.size();
     sub_param.topic = &mqtt_topics[0];
 
-    if (lws_mqtt_client_send_subcribe(wsi, &sub_param)) {
+    if (lws_mqtt_client_send_subcribe(wsi, &sub_param)) { //into case subscribe in callback
       lwsl_notice("%s: subscribe failed\n", __func__);
     }
     spdlog::info("pss->state=STATE_PUBLISH_QOS0, line 280");
@@ -377,15 +377,18 @@ void mqttClient::processMessage(void *in, size_t len, struct lws *wsi) {
 
   lwsl_hexdump_notice(pub_param->topic, pub_param->topic_len);
   lwsl_hexdump_notice(pub_param->payload, pub_param->payload_len);
-
-  unsigned char phoneNumber[] = {1, 3, 9, 1, 1, 2, 9, 5, 4, 6, 7};
+  spdlog::info("mqttClient::processMessage, received {} from topic: {}",
+  pub_param->payload, pub_param->topic);
+  //unsigned char phoneNumber[] = {1, 3, 9, 1, 1, 2, 9, 5, 4, 6, 7};
   MESSAGE msg = {0};
-  msg.sid = 0x1;
-  msg.did = 0x2;
-  msg.length = sizeof(phoneNumber) / sizeof(phoneNumber[0]);
+  msg.sid = COM_MQTT_CLIENT;
+  msg.did = COM_DS;
+  //msg.length = sizeof(phoneNumber) / sizeof(phoneNumber[0]);
+  msg.length = pub_param->payload_len;
   msg.type = SMM_OutGoingRequest;
-  memcpy(msg.Union.smm_OutGoingRequest.PhoneNumber, phoneNumber,
-         sizeof(phoneNumber) / sizeof(phoneNumber[0]));
+  //memcpy(msg.Union.smm_OutGoingRequest.PhoneNumber, phoneNumber,
+  //       sizeof(phoneNumber) / sizeof(phoneNumber[0]));
+    memcpy (msg.Union.content, pub_param->payload, msg.length);
   std::shared_ptr<MESSAGE> message = std::make_shared<MESSAGE>(msg);
 
   TCallback callback = std::bind<>(&mqttClient::AsyncResult, this,

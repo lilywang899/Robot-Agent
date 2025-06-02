@@ -220,6 +220,9 @@ void Agent::OnMessage (std::shared_ptr<MESSAGE> message, TCallback callback) {
         data[7]      = 10;
         dsService->Send (data, 8);
     } break;
+    case COM_MQTT_CLIENT: {
+        spdlog::info("agent::OnMessage, processing message");
+    }
     default: break;
     }
    

@@ -1,0 +1,4 @@
+---
+logger_config:
+  log_level: INFO
+  log_file_path: /home/lily/Robot-Agent/log/log.txt
