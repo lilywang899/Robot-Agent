@@ -377,8 +377,10 @@ void mqttClient::processMessage(void *in, size_t len, struct lws *wsi) {
 
   lwsl_hexdump_notice(pub_param->topic, pub_param->topic_len);
   lwsl_hexdump_notice(pub_param->payload, pub_param->payload_len);
+  const char *recv_payload = (const char *)pub_param->payload;
+
   spdlog::info("mqttClient::processMessage, received {} from topic: {}",
-  pub_param->payload, pub_param->topic);
+  recv_payload, pub_param->topic);
   //unsigned char phoneNumber[] = {1, 3, 9, 1, 1, 2, 9, 5, 4, 6, 7};
   MESSAGE msg = {0};
   msg.sid = COM_MQTT_CLIENT;
