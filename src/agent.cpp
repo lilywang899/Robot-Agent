@@ -166,7 +166,16 @@ std::shared_ptr<MESSAGE> Agent::parseDsMessage(std::shared_ptr<MESSAGE> message,
     (message->Union.smm_OutGoingRequest.PhoneNumber[15] != 0 || DS_joint_enabled != 100)) {
         spdlog::info ("joint enable received");
         if (message->Union.smm_OutGoingRequest.PhoneNumber[15] != 0)
-            DS_joint_enabled = joint_index;
+            if (joint_index == 9) {
+                strcpy(buf_string,"#GETJPOS");
+                msg.length  = strlen (buf_string);
+                memcpy (msg.Union.content, buf_string, msg.length);
+                auto p_message = std::make_shared<MESSAGE> (msg);
+                return p_message;
+            }
+            else {
+                DS_joint_enabled = joint_index;
+            }
         spdlog::info ("joint {}  enabled", DS_joint_enabled);
         dummy_joint_angle = (message->Union.smm_OutGoingRequest.PhoneNumber[17]<<8) | message->Union.smm_OutGoingRequest.PhoneNumber[18];
         spdlog::info ("dummy_joint_angle = {}", dummy_joint_angle);
@@ -221,7 +230,7 @@ void Agent::OnMessage (std::shared_ptr<MESSAGE> message, TCallback callback) {
         dsService->Send (data, 8);
     } break;
     case COM_MQTT_CLIENT: {
-        spdlog::info("agent::OnMessage, processing message");
+        dsService->Send((const char*)message->Union.content, message->length);
     }
     default: break;
     }
