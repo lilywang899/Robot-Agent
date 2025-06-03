@@ -38,7 +38,7 @@ class Agent {
   static void* EntryOfThread(void* argv);
   void Run();
   std::shared_ptr<MESSAGE> parseDsMessage(std::shared_ptr<MESSAGE> message, TCallback callback);
-  void parseRobotMessage();
+  void parseRobotMessage(std::shared_ptr<MESSAGE> message);
   std::shared_ptr<DSService> dsService;   
   std::shared_ptr<Controller> controller;
   pthread_t thread_id;
@@ -65,5 +65,6 @@ class Agent {
   };
  int dummy_joint_angle=-1;
  bool hat_control_sent=false;
+ char dummy_tx_data[30] = { 0 };
 };
 

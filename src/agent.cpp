@@ -139,8 +139,24 @@ void Agent::Run() {
 	}
 }
 
-void Agent::parseRobotMessage() {
+void Agent::parseRobotMessage(std::shared_ptr<MESSAGE> message) {
 
+    dummy_tx_data[0] = 0;
+    dummy_tx_data[1] = 1;
+    dummy_tx_data[2] = 1;
+    dummy_tx_data[3] = 1;
+    dummy_tx_data[4] = 1;
+    dummy_tx_data[5] = 1;
+    dummy_tx_data[6] = 10;
+    dummy_tx_data[7] = 10;
+    dummy_tx_data[9] = 5; //tag corresponding to cRTagCPUInfo
+
+    int frc_protocol_joint = 14;
+    for (size_t i=3; i<message->length; i=i+2) {
+        dummy_tx_data[frc_protocol_joint] =(char)message->Union.content;
+        spdlog::info("dummy_tx_data[{}] = {}",frc_protocol_joint,dummy_tx_data[frc_protocol_joint]);
+        frc_protocol_joint++;
+    }
 }
 
 std::shared_ptr<MESSAGE> Agent::parseDsMessage(std::shared_ptr<MESSAGE> message, TCallback callback) {
@@ -166,7 +182,7 @@ std::shared_ptr<MESSAGE> Agent::parseDsMessage(std::shared_ptr<MESSAGE> message,
     } else if (DS_enabled == true &&
     (button != 0 || DS_joint_enabled != 100)) {
         spdlog::info ("joint enable received");
-        if (button != 0)
+        if (button != 0) {
             if (joint_index == 9) {
                 spdlog::info ("joint {}  enabled", DS_joint_enabled);
                 strcpy(buf_string,"#GETJPOS");
@@ -178,6 +194,7 @@ std::shared_ptr<MESSAGE> Agent::parseDsMessage(std::shared_ptr<MESSAGE> message,
             else {
                 DS_joint_enabled = joint_index;
             }
+        }
         spdlog::info ("joint {}  enabled", DS_joint_enabled);
         dummy_joint_angle = (message->Union.smm_OutGoingRequest.PhoneNumber[17]<<8) | message->Union.smm_OutGoingRequest.PhoneNumber[18];
         spdlog::info ("dummy_joint_angle = {}", dummy_joint_angle);
@@ -232,7 +249,9 @@ void Agent::OnMessage (std::shared_ptr<MESSAGE> message, TCallback callback) {
         dsService->Send (data, 8);
     } break;
     case COM_MQTT_CLIENT: {
-        dsService->Send((const char*)message->Union.content, message->length);
+        parseRobotMessage(message);
+        dsService->Send (dummy_tx_data, 20);
+
     }
     default: break;
     }
