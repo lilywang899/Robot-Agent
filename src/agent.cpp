@@ -145,7 +145,8 @@ void Agent::parseRobotMessage() {
 
 std::shared_ptr<MESSAGE> Agent::parseDsMessage(std::shared_ptr<MESSAGE> message, TCallback callback) {
     bool enabled = bitToIndex (message->Union.smm_OutGoingRequest.PhoneNumber[3]);
-    int joint_index = bitToIndex ( message->Union.smm_OutGoingRequest.PhoneNumber[15]);
+    int button = (message->Union.smm_OutGoingRequest.PhoneNumber[14]<<8) | message->Union.smm_OutGoingRequest.PhoneNumber[15];
+    int joint_index = bitToIndex (button);
     char buf_string[256]={0}; // Make sure this is big enough
     MESSAGE msg = { 0 };
     msg.sid     = COM_DS;
@@ -163,10 +164,11 @@ std::shared_ptr<MESSAGE> Agent::parseDsMessage(std::shared_ptr<MESSAGE> message,
         strcpy(buf_string,"!DISABLE");
 
     } else if (DS_enabled == true &&
-    (message->Union.smm_OutGoingRequest.PhoneNumber[15] != 0 || DS_joint_enabled != 100)) {
+    (button != 0 || DS_joint_enabled != 100)) {
         spdlog::info ("joint enable received");
-        if (message->Union.smm_OutGoingRequest.PhoneNumber[15] != 0)
+        if (button != 0)
             if (joint_index == 9) {
+                spdlog::info ("joint {}  enabled", DS_joint_enabled);
                 strcpy(buf_string,"#GETJPOS");
                 msg.length  = strlen (buf_string);
                 memcpy (msg.Union.content, buf_string, msg.length);
