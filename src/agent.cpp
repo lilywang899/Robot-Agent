@@ -150,10 +150,14 @@ void Agent::parseRobotMessage(std::shared_ptr<MESSAGE> message) {
     dummy_tx_data[6] = 10;
     dummy_tx_data[7] = 10;
     dummy_tx_data[9] = 5; //tag corresponding to cRTagCPUInfo
+    float a,b,c,d,e,f;
+    float joint_pos[6] = {a, b, c, d, e, f};
 
+    // Parse floats from the string
+    sscanf((const char*)message->Union.content, "ok %f %f %f %f %f %f", &a, &b, &c, &d, &e, &f);
     int frc_protocol_joint = 14;
-    for (size_t i=3; i<message->length; i=i+2) {
-        dummy_tx_data[frc_protocol_joint] =(char)message->Union.content;
+    for (size_t i=0; i<6; i++) {
+        dummy_tx_data[frc_protocol_joint] = joint_pos[i];
         spdlog::info("dummy_tx_data[{}] = {}",frc_protocol_joint,dummy_tx_data[frc_protocol_joint]);
         frc_protocol_joint++;
     }
